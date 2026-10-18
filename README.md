@@ -27,6 +27,3 @@ kesalahan dibanding pencatatan manual.
 - Pemesanan layanan grooming
 - Laporan penjualan
 
-|
-| [Nama anggota 2] | [NIM] |
-| [Nama anggota 3] | [NIM] |
