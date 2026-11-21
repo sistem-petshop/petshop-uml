@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Booking Grooming – PawPals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--green:#1d5a3d;--mint:#e3f4ea;--brown:#9a4a08;--sand:#f6f4f0;--ink:#1b1f1c;--mute:#5d655f;--line:#e6e2da;--peach:#fbe9d8}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:linear-gradient(#cfdcd2,var(--sand) 560px) var(--sand);color:var(--ink);line-height:1.5}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--brown);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+/* header */
+header{position:sticky;top:0;z-index:20;background:rgba(246,244,240,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:24px;padding:14px 0}
+.logo{font-weight:800;font-size:20px;color:var(--green);line-height:1.1}
+.logo small{display:block;font-size:11px;font-weight:500;color:var(--mute)}
+.search{flex:1;max-width:420px;margin:0 auto;position:relative}
+.search input{width:100%;padding:11px 16px 11px 40px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:14px}
+.search span{position:absolute;left:15px;top:9px}
+.tools{display:flex;align-items:center;gap:18px;font-size:13px;font-weight:600}
+.cart{position:relative;font-size:20px}
+.cart b{position:absolute;top:-8px;right:-10px;background:var(--brown);color:#fff;font-size:11px;border-radius:99px;min-width:18px;height:18px;display:grid;place-items:center}
+.user{display:flex;align-items:center;gap:10px;font-size:12px;line-height:1.2}
+.user i{width:34px;height:34px;border-radius:50%;background:var(--peach);display:grid;place-items:center;font-style:normal}
+.user em{color:var(--brown);font-style:normal;font-weight:700;display:block}
+nav{display:flex;gap:30px;font-size:14px;font-weight:600;overflow-x:auto}
+nav a{padding:6px 0 12px;white-space:nowrap;border-bottom:3px solid transparent}
+nav a.on{color:var(--green);border-color:var(--green)}
+/* page */
+.crumb{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:20px 0 14px;font-size:12px;color:var(--mute)}
+.crumb b{color:var(--ink)}.crumb span:last-child{font-weight:600;color:var(--green)}
+h1{font-size:clamp(26px,3.4vw,34px);letter-spacing:-.02em;line-height:1.15;font-weight:800;margin-bottom:18px}
+.card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:24px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 20px}
+.step{display:flex;align-items:center;gap:14px;color:#9aa19c}
+.step .n{width:40px;height:40px;border-radius:50%;background:#e8e6e1;display:grid;place-items:center;font-weight:700;flex:none}
+.step small{display:block;font-size:11px;font-weight:700;letter-spacing:.04em}
+.step b{font-size:17px;font-weight:600}
+.step.done{color:var(--ink)}.step.done .n{background:var(--green);color:#fff}.step.done small{color:var(--green)}
+.step.act{color:var(--ink)}.step.act .n{background:#f58a1f;color:#fff;box-shadow:0 0 0 5px #fde3c4}.step.act small{color:var(--brown)}
+.layout{display:grid;grid-template-columns:1.55fr 1fr;gap:28px;align-items:start}
+.sticky{position:sticky;top:130px}
+.ch{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:22px}
+.ch h2{font-size:21px;font-weight:600;display:flex;gap:10px;align-items:center}
+.ch p{font-size:13px;color:var(--mute);margin-left:32px}
+.bd{font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:#efede8;color:var(--mute);white-space:nowrap}
+.bd.ok{background:var(--mint);color:var(--green)}
+label,.lb{display:block;font-size:12px;font-weight:600;margin-bottom:6px}
+.lb.r{display:flex;justify-content:space-between}.lb.r i{font-style:normal;color:var(--brown);font-weight:700;font-size:11px}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px}
+.full{grid-column:1/-1}
+.in{width:100%;background:#f1efea;border:2px solid transparent;border-radius:10px;padding:13px 16px;font-size:15px}
+.in:focus{border-color:var(--green);outline:0;background:#fff}
+.in.bad{border-color:#c0392b}
+textarea.in{resize:vertical;min-height:70px;font-size:14px}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tg button{padding:12px;border-radius:10px;background:#f1efea;font-weight:600;font-size:14px}
+.tg button.on{background:var(--green);color:#fff}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tags button{font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px}
+.t1{background:#fbd9d4;color:#b03a2e}.t2{background:var(--mint);color:var(--green)}.t3{background:#efede8;color:var(--mute)}
+.pk{display:flex;gap:16px;align-items:center;width:100%;text-align:left;padding:18px;border-radius:14px;border:2px solid transparent;background:#fff;margin-bottom:12px;position:relative;overflow:hidden}
+.pk:hover{background:#faf8f4}
+.pk.on{background:#fdf0e4;border-color:#f0b27a}
+.pk .ic{width:48px;height:48px;border-radius:12px;background:#f1efea;display:grid;place-items:center;font-size:22px;flex:none}
+.pk.on .ic{background:var(--peach)}
+.pk .tx{flex:1}
+.pk h3{font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pk h3 span{font-size:11px;background:#efede8;padding:2px 8px;border-radius:6px;font-weight:700}
+.pk p{font-size:13px;color:var(--mute);margin:4px 0 6px}
+.pk ul{list-style:none;display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:600;color:var(--green)}
+.pk.on ul{color:var(--brown)}
+.pk li:before{content:"✓ "}
+.pk .pr{text-align:right;flex:none}
+.pk .pr small{display:block;font-size:11px;color:var(--mute);font-weight:600}
+.pk .pr strong{font-size:22px;color:var(--green)}
+.pk .rb{position:absolute;top:10px;right:-28px;transform:rotate(35deg);background:var(--brown);color:#fff;font-size:9px;font-weight:700;padding:2px 32px}
+.wkh{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;margin-bottom:10px}
+.wkh div button{width:28px;height:28px;border-radius:50%;background:#efede8;margin-left:6px}
+.wkh button:disabled{opacity:.4;cursor:not-allowed}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:24px}
+.day{border-radius:10px;background:#efede8;padding:8px 2px;text-align:center;font-size:11px}
+.day b{display:block;font-size:20px;line-height:1.2}
+.day.on{background:var(--green);color:#fff}
+.day:disabled{opacity:.45;cursor:not-allowed}
+.slh{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.slh span{color:var(--mute);font-weight:600}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sl{border-radius:10px;background:#f1efea;padding:10px 14px;text-align:left;font-size:12px;font-weight:600;color:var(--green);border:2px solid transparent}
+.sl b{display:flex;justify-content:space-between;font-size:15px;color:var(--ink)}
+.sl.on{background:var(--green);color:#fff}.sl.on b{color:#fff}
+.sl:disabled{opacity:.55;cursor:not-allowed;color:var(--mute)}.sl:disabled b{text-decoration:line-through;color:var(--mute)}
+.cs{display:flex;align-items:center;gap:10px;background:#f1efea;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600}
+.gm{display:flex;gap:16px;align-items:center;background:#ebe8e1;border-radius:14px;padding:18px 20px;margin-bottom:24px}
+.gm i{width:56px;height:56px;border-radius:50%;background:var(--peach);display:grid;place-items:center;font-size:28px;font-style:normal;flex:none}
+.gm div{flex:1;font-size:13px;color:var(--mute)}.gm b{font-size:17px;color:var(--ink)}
+.gm b span{font-size:10px;background:var(--green);color:#fff;border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+.gm strong{color:var(--brown);font-size:15px}
+/* summary */
+.sum{border-top:6px solid #e08a2e;margin-bottom:16px}
+.sh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;font-weight:700;margin-bottom:14px;flex-wrap:wrap}
+.hold{font-size:11px;background:var(--peach);color:var(--brown);padding:4px 10px;border-radius:99px}
+.pet{display:flex;align-items:center;gap:14px;background:#f1efea;border-radius:12px;padding:16px;margin-bottom:16px}
+.pet i{width:44px;height:44px;border-radius:10px;background:#fff;display:grid;place-items:center;font-style:normal;font-size:22px}
+.pet div{flex:1;font-size:13px;color:var(--mute)}.pet b{font-size:19px;color:var(--ink);display:block}
+.pet span{font-size:11px;background:#fff;padding:2px 8px;border-radius:6px;font-weight:700;align-self:start}
+.row{display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-top:8px}
+.row span{color:var(--mute)}.row b{font-weight:600;text-align:right}
+.row.big b{font-size:14px;font-weight:700}
+.row.big small{display:block;font-size:11px;color:var(--mute)}
+.bonus{background:var(--mint);color:var(--green);border-radius:10px;padding:10px 14px;font-size:12px;margin:14px 0 22px}
+.tot{display:flex;justify-content:space-between;align-items:end;gap:10px}
+.tot small{display:block;font-size:11px}.tot small:first-child{font-weight:700;color:var(--ink)}.tot small+small{color:var(--green);font-weight:600}
+.tot strong{font-size:36px;color:var(--green);letter-spacing:-.03em;line-height:1}
+.go{display:block;width:100%;margin:18px 0 12px;background:var(--brown);color:#fff;font-weight:700;padding:15px;border-radius:99px;font-size:15px}
+.go:hover{background:#823f06}
+.nt{text-align:center;font-size:11px;color:var(--mute);font-weight:600}
+.tr{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 20px;font-size:11px;color:var(--mute)}
+.tr div{display:flex;gap:10px;align-items:center}.tr b{display:block;font-size:12px;color:var(--ink)}
+.tr i{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-style:normal;background:var(--mint)}
+.tr div+div i{background:var(--peach)}
+/* footer */
+footer{background:#efede8;padding:44px 0 24px;margin-top:56px;font-size:13px;color:var(--mute)}
+.fg{display:grid;grid-template-columns:1.2fr 1.2fr 1.2fr 1fr;gap:32px}
+footer h4{color:var(--ink);font-size:13px;margin-bottom:10px}
+footer li{list-style:none;margin-bottom:6px}
+.fl{font-size:20px;font-weight:800;color:var(--green);margin-bottom:10px}
+.hrs{display:flex;justify-content:space-between;gap:10px}
+.pay span{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:6px;padding:3px 8px;margin:0 4px 6px 0;font-size:11px}
+.copy{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid var(--line);margin-top:30px;padding-top:18px;font-size:12px}
+.copy a{margin-left:18px;font-weight:600}
+.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:99px;font-size:13px;font-weight:600;transition:transform .25s;z-index:50;max-width:90vw}
+.toast.show{transform:translate(-50%,0)}
+dialog{border:0;border-radius:20px;padding:32px;max-width:440px;width:92%;margin:auto;text-align:center}
+dialog::backdrop{background:rgba(20,30,24,.55)}
+dialog .ok{width:60px;height:60px;border-radius:50%;background:var(--mint);display:grid;place-items:center;font-size:28px;margin:0 auto 14px}
+dialog h2{font-size:22px}
+dialog .code{font-size:28px;font-weight:800;letter-spacing:.08em;color:var(--green);background:var(--mint);border-radius:12px;padding:12px;margin:16px 0}
+dialog p{font-size:13px;color:var(--mute)}
+dialog .ds{text-align:left;margin:14px 0 20px}
+dialog .btn{display:inline-block;padding:12px 22px;border-radius:99px;font-weight:700;font-size:14px;background:var(--green);color:#fff}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.sticky{position:static}.fg{grid-template-columns:1fr 1fr}.tools .loc,.user div{display:none}.steps b{font-size:14px}}
+@media(max-width:600px){.f,.tg{grid-template-columns:1fr}.slots{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr}.pk{flex-wrap:wrap}.pk .pr{text-align:left}.top{flex-wrap:wrap}.search{order:3;flex-basis:100%;max-width:none}.fg{grid-template-columns:1fr}.card{padding:18px}.ch p{margin-left:0}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header>
+ <div class="wrap">
+  <div class="top">
+   <a href="index.html" class="logo">PawPals<small>Pet Care &amp; Store</small></a>
+   <form class="search" id="sf"><span>🔍</span><input id="q" type="search" placeholder="Cari makanan kucing, vitamin, grooming..." aria-label="Cari produk"></form>
+   <div class="tools"><span class="loc">📍 Lokasi &amp; Klinik</span><a class="cart" href="index.html#produk" aria-label="Keranjang">🛒<b>3</b></a><div class="user"><i>🐾</i><div>Sarah Amalia<em>PawPals Gold</em></div></div></div>
+  </div>
+  <nav><a href="index.html">Beranda</a><a href="index.html#produk">Belanja Produk</a><a class="on" href="booking.html">Booking Grooming</a><a href="#">Riwayat Pesanan</a><a href="index.html#kontak">Hubungi Kami &amp; Lokasi</a></nav>
+ </div>
+</header>
+
+<main class="wrap">
+ <div class="crumb"><span><a href="index.html">Beranda</a> › <b>Reservasi Grooming Spesialis</b></span><span>🛡 Higienitas Standar Medis · Groomer Tersertifikasi</span></div>
+ <h1>Reservasi Grooming Spesialis</h1>
+
+ <div class="card steps" aria-label="Langkah reservasi">
+  <div class="step done" id="s1"><span class="n">1</span><div><small>LANGKAH 01</small><b>Data Anabul &amp; Paket</b></div></div>
+  <div class="step act" id="s2"><span class="n">2</span><div><small id="s2t">LANGKAH 02 · AKTIF</small><b>Jadwal &amp; Slot Jam</b></div></div>
+  <div class="step" id="s3"><span class="n">3</span><div><small>LANGKAH 03</small><b>Konfirmasi &amp; Kode Booking</b></div></div>
+ </div>
+
+ <div class="layout">
+  <div>
+   <section class="card" aria-labelledby="h-pet">
+    <div class="ch"><div><h2 id="h-pet">🐾 Data Hewan Peliharaan</h2><p>Informasi detail membantu groomer menangani anabul dengan tenang</p></div><span class="bd ok" id="saved">Tersimpan</span></div>
+    <div class="f">
+     <div class="full"><span class="lb">Jenis Hewan</span><div class="tg" role="group" aria-label="Jenis hewan"><button type="button" data-type="Kucing">🐱 Kucing (Cat)</button><button type="button" data-type="Anjing" class="on">🐶 Anjing (Dog)</button></div></div>
+     <div><label for="nm">Nama Anabul</label><input class="in" id="nm" value="Milo" autocomplete="off"></div>
+     <div><label for="br">Ras / Breed</label><input class="in" id="br" value="Golden Retriever" autocomplete="off"></div>
+     <div><label for="bb">Berat Badan (Kg)</label><input class="in" id="bb" type="number" min="0.5" max="80" step="0.1" value="18.5"></div>
+     <div><label for="us">Usia Hewan</label><input class="in" id="us" value="2 Tahun 4 Bulan" autocomplete="off"></div>
+     <div class="full"><label class="lb r" for="ct">Catatan Khusus &amp; Riwayat Alergi <i>Wajib Diisi</i></label><textarea class="in" id="ct">Sensitif di bagian telinga, mohon gunakan shampoo hipoalergenik dan hindari semprotan air langsung ke lubang telinga.</textarea>
+      <div class="tags"><button type="button" class="t1" data-t="Sensitif telinga.">Sensitif Telinga</button><button type="button" class="t2" data-t="Gunakan shampoo hipoalergenik.">Shampoo Hipoalergenik</button><button type="button" class="t3" data-t="Alergi kulit: ">+ Tambah Alergi Kulit</button></div></div>
+    </div>
+   </section>
+
+   <section class="card" aria-labelledby="h-pk">
+    <div class="ch"><div><h2 id="h-pk">🌿 Pilih Paket Perawatan</h2><p>Layanan higienis disesuaikan dengan kebutuhan bulu dan kulit anabul</p></div><span class="bd">3 Pilihan Layanan</span></div>
+    <div id="pks" role="radiogroup" aria-label="Paket perawatan"></div>
+   </section>
+
+   <section class="card" aria-labelledby="h-dt">
+    <div class="ch"><div><h2 id="h-dt">📅 Pilih Tanggal &amp; Jam Layanan</h2><p>Kapasitas salon dibatasi maks 2 anabul per slot agar bebas stres</p></div><span class="bd ok">● Realtime Slot</span></div>
+    <div class="wkh"><span id="wkt"></span><div><button type="button" id="pv" aria-label="Minggu sebelumnya">‹</button><button type="button" id="nx" aria-label="Minggu berikutnya">›</button></div></div>
+    <div class="week" id="week"></div>
+    <div class="slh"><b id="slt"></b><span>Waktu Indonesia Barat (WIB)</span></div>
+    <div class="slots" id="slots"></div>
+   </section>
+
+   <div class="gm"><i>🧑‍🔬</i><div><b>Bima Arya, CPG <span>Chief Groomer</span></b><br>Sertifikasi Perawatan Medis &amp; Feline/Canine Handling Bebas Stres (8+ Thn Pengalaman)</div><strong>★ 4.98</strong></div>
+  </div>
+
+  <aside class="sticky">
+   <div class="card sum">
+    <div class="sh"><span>RINGKASAN RESERVASI</span><span class="hold" id="hold">● Slot Diamankan Sementara (15m)</span></div>
+    <div class="pet"><i id="sIc">🐶</i><div><b id="sNm">Milo</b><span id="sMeta"></span></div><span id="sKg"></span></div>
+    <div class="row big"><div><b id="sPk"></b><small id="sDur"></small></div><b id="sPr"></b></div>
+    <div class="row"><span>🗓 Jadwal Kedatangan</span><b id="sJd"></b></div>
+    <div class="row"><span>👤 Lead Groomer</span><b>Bima Arya, CPG</b></div>
+    <div class="row"><span>📍 Lokasi Salon</span><b>PawPals Cabang Senopati</b></div>
+    <div class="bonus"><b>🎁 Bonus Reservasi Online:</b><br>Gratis 1 Pack Dental Chew Snack + Kartu Riwayat Grooming &amp; Monitoring Kutu Anabul.</div>
+    <div class="tot"><div><small>TOTAL BIAYA LAYANAN</small><small>Pembayaran di kasir / salon klinik</small></div><strong id="sTot"></strong></div>
+    <button class="go" id="go" type="button">Konfirmasi Booking &amp; Amankan Slot →</button>
+    <p class="nt">🔓 Bebas Reschedule hingga 2 jam sebelum jadwal. Tanpa biaya admin.</p>
+   </div>
+   <div class="card tr"><div><i>🧼</i><span><b>100% Steril</b>Pisau &amp; Handuk UV</span></div><div><i>🩺</i><span><b>Dokter On-Call</b>Siaga Konsultasi</span></div></div>
+  </aside>
+ </div>
+</main>
+
+<footer>
+ <div class="wrap">
+  <div class="fg">
+   <div><div class="fl">PawPals</div><p>Pusat perawatan hewan terpercaya dengan dedikasi penuh kasih. Menyediakan layanan grooming higienis, konsultasi dokter hewan, dan produk nutrisi premium.</p><p style="margin-top:12px;color:var(--green);font-weight:700">🐾 Sehat, Bersih &amp; Terawat</p></div>
+   <div><h4>Jam Operasional</h4><div class="hrs"><span>Klinik &amp; Dokter:</span><b>08:00 - 20:00</b></div><div class="hrs"><span>Salon Grooming:</span><b>08:30 - 19:00</b></div><div class="hrs"><span>Hari Operasi:</span><b>Senin - Minggu</b></div><p style="color:var(--brown);font-weight:700;margin-top:8px;font-size:12px">★ Layanan darurat reservasi prioritas</p></div>
+   <div><h4>Kontak &amp; Cabang</h4><p>📍 Jl. Senopati Raya No. 42, Kebayoran Baru, Jakarta Selatan</p><p>📞 (021) 7280–9912 / WhatsApp Care</p><p>✉ care@pawpals.co.id</p></div>
+   <div><h4>Keamanan &amp; Bantuan</h4><ul><li>Tanya Jawab (FAQ)</li><li>Kebijakan Garansi Kesehatan</li><li>Ketentuan Layanan Grooming</li></ul><h4 style="margin-top:10px">Metode Pembayaran Aman</h4><div class="pay"><span>Transfer Bank</span><span>QRIS</span><span>E-Wallet</span><span>Kartu Kredit</span></div></div>
+  </div>
+  <div class="copy"><span>© 2024 PawPals Pet Care &amp; Store. Seluruh Hak Cipta Dilindungi.</span><span><a href="#">Privasi Konsumen</a><a href="#">Syarat &amp; Ketentuan</a><a href="#">Bantuan Pelanggan</a></span></div>
+ </div>
+</footer>
+
+<dialog id="dlg"><div class="ok">✅</div><h2>Booking Berhasil!</h2><p>Simpan kode booking ini dan tunjukkan di kasir salon.</p><div class="code" id="code"></div><div class="ds" id="dsum"></div><a class="btn" href="index.html">Kembali ke Beranda</a></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const rp=n=>"Rp "+n.toLocaleString("id-ID");
+const PK={
+ basic:{n:"Basic Bath & Clean",m:45,p:75000,sub:"Mandi Higienis",ic:"💧",d:"Mandi wangi antibakteri, potong dan kikir kuku, bersihkan telinga, perapihan telapak kaki.",f:["Blow Dry Higienis","Pembersihan Kelenjar"]},
+ flea:{n:"Flea & Tick Treatment / Anti Jamur",m:60,p:120000,sub:"Mandi Medis",ic:"🧴",rec:1,d:"Shampoo medis khusus kutu & anti jamur, perendaman deep cleanse, sanitasi kutu folikel, blow dry steril UV.",f:["Shampoo Medis Jerman","Pembersihan Jamur Kulit","Anti-Kutu 30 Hari"]},
+ full:{n:"Full Grooming & Styling",m:90,p:165000,sub:"Grooming Lengkap",ic:"✂️",d:"Lengkap: Mandi spa mewah, potong kuku, pembersihan telinga mendalam, stylish haircut & blow out bervolume.",f:["Groomer Master Stylist","Parfum Aromaterapi"]}
+};
+const TIMES=["09:00","10:30","13:00","14:30","16:00"];
+const DN=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],DS=DN.map(x=>x.slice(0,3));
+const MN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+const qp=new URLSearchParams(location.search).get("paket");
+const S={type:"Anjing",pk:PK[qp]?qp:"flea",date:null,time:null,wk:0,done:false};
+
+const mon=off=>{const d=new Date(today);d.setDate(d.getDate()-(d.getDay()+6)%7+off*7);return d};
+const addD=(d,k)=>{const x=new Date(d);x.setDate(x.getDate()+k);return x};
+function booked(d,i){
+ if(d<today||d.getDay()===6)return true;
+ if(+d===+today){const[h,m]=TIMES[i].split(":");if(now.getHours()*60+now.getMinutes()>=h*60+ +m)return true}
+ return (d.getDate()*31+i*17+d.getMonth()*7)%4===0;
+}
+const freeIdx=d=>TIMES.map((_,i)=>i).filter(i=>!booked(d,i));
+const fmtD=d=>`${DN[d.getDay()]}, ${d.getDate()} ${MN[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2400)}
+
+function renderPk(){
+ $("#pks").innerHTML=Object.entries(PK).map(([k,x])=>`<button type="button" class="pk ${k===S.pk?"on":""}" role="radio" aria-checked="${k===S.pk}" data-k="${k}">${x.rec?'<span class="rb">REKOMENDASI</span>':""}<span class="ic">${x.ic}</span><span class="tx"><h3>${x.n} <span>${x.m} Menit</span></h3><p>${x.d}</p><ul>${x.f.map(f=>`<li>${f}</li>`).join("")}</ul></span><span class="pr"><small>${x.rec?"Paling Populer":"Tarif"}</small><strong>${rp(x.p)}</strong></span></button>`).join("");
+}
+function renderWeek(){
+ const m=mon(S.wk),e=addD(m,6);
+ $("#wkt").textContent=S.wk===0?`Jadwal Minggu Ini (${MN[m.getMonth()]} ${m.getFullYear()})`:`Jadwal ${m.getDate()} ${MN[m.getMonth()].slice(0,3)} – ${e.getDate()} ${MN[e.getMonth()].slice(0,3)} ${e.getFullYear()}`;
+ $("#pv").disabled=S.wk<=0;$("#nx").disabled=S.wk>=4;
+ $("#week").innerHTML=Array.from({length:7},(_,k)=>{
+  const d=addD(m,k),n=freeIdx(d).length,off=n===0;
+  const lb=d<today?"Lewat":off?"Penuh":n+" slot";
+  return `<button type="button" class="day ${+d===S.date?"on":""}" data-d="${+d}" ${off?"disabled":""}>${DS[d.getDay()]}<b>${d.getDate()}</b>${lb}</button>`}).join("");
+}
+function renderSlots(){
+ if(!S.date){return}
+ const d=new Date(S.date);
+ $("#slt").textContent=`Slot Jam Tersedia (${fmtD(d).replace(/ \d{4}$/,"")})`;
+ $("#slots").innerHTML=TIMES.map((t,i)=>{
+  const b=booked(d,i),on=!b&&t===S.time,tb=1+(d.getDate()+i)%2;
+  return `<button type="button" class="sl ${on?"on":""}" data-t="${t}" ${b?"disabled":""}><b>${t}<span>${b?"🔒":on?"✔":"●"}</span></b>${b?"Penuh / Booked":on?"Terpilih (Kamar Steril 1)":tb+" Meja Tersedia"}</button>`}).join("")
+  +`<div class="cs">🙋 <span>Perlu jam khusus? Hubungi CS</span></div>`;
+}
+function renderSum(){
+ const p=PK[S.pk],v=id=>$("#"+id).value.trim();
+ $("#sIc").textContent=S.type==="Kucing"?"🐱":"🐶";
+ $("#sNm").textContent=v("nm")||"—";
+ $("#sMeta").textContent=`${v("br")||"-"} · ${v("us")||"-"}`;
+ $("#sKg").textContent=(v("bb")||"-")+" kg";
+ $("#sPk").textContent=p.n;$("#sDur").textContent=`Durasi estimasi ${p.m} menit · ${p.sub}`;
+ $("#sPr").textContent=rp(p.p);$("#sTot").textContent=rp(p.p);
+ $("#sJd").textContent=S.date&&S.time?`${fmtD(new Date(S.date))} · ${S.time} WIB`:"Pilih tanggal & jam";
+}
+const renderAll=()=>{renderPk();renderWeek();renderSlots();renderSum()};
+
+// default: slot terdekat yang tersedia
+for(let k=0;k<28&&!S.date;k++){const d=addD(today,k),f=freeIdx(d);if(f.length){S.date=+d;S.time=TIMES[f.includes(2)?2:f[0]]}}
+S.wk=Math.floor(Math.round((S.date-+mon(0))/864e5)/7);
+renderAll();
+
+// interaksi
+$("#pks").onclick=e=>{const b=e.target.closest("[data-k]");if(b){S.pk=b.dataset.k;renderPk();renderSum()}};
+$("#week").onclick=e=>{const b=e.target.closest("[data-d]");if(!b)return;S.date=+b.dataset.d;const d=new Date(S.date),f=freeIdx(d);if(!f.some(i=>TIMES[i]===S.time))S.time=TIMES[f[0]];renderWeek();renderSlots();renderSum()};
+$("#slots").onclick=e=>{const b=e.target.closest("[data-t]");if(b&&!b.disabled){S.time=b.dataset.t;renderSlots();renderSum()}};
+$("#pv").onclick=()=>{S.wk--;renderWeek()};
+$("#nx").onclick=()=>{S.wk++;renderWeek()};
+$$(".tg button").forEach(b=>b.onclick=()=>{S.type=b.dataset.type;$$(".tg button").forEach(x=>x.classList.toggle("on",x===b));renderSum();dirty()});
+$$(".tags button").forEach(b=>b.onclick=()=>{const c=$("#ct"),t=b.dataset.t;if(!c.value.toLowerCase().includes(t.toLowerCase().replace(/[.:\s]+$/,""))){c.value=(c.value.trim()?c.value.trim()+" ":"")+t}c.focus();dirty()});
+let sv;function dirty(){const s=$("#saved");s.textContent="Menyimpan...";s.classList.remove("ok");clearTimeout(sv);sv=setTimeout(()=>{s.textContent="Tersimpan";s.classList.add("ok")},600)}
+["nm","br","bb","us","ct"].forEach(id=>$("#"+id).addEventListener("input",()=>{$("#"+id).classList.remove("bad");renderSum();dirty()}));
+$("#sf").onsubmit=e=>{e.preventDefault();location.href="index.html?q="+encodeURIComponent($("#q").value)+"#produk"};
+
+// hitung mundur penahanan slot
+let left=900;const hold=setInterval(()=>{if(S.done)return clearInterval(hold);if(--left<0){left=900;toast("Waktu penahanan habis, slot diamankan ulang")}$("#hold").textContent=`● Slot Diamankan Sementara (${String(left/60|0).padStart(2,"0")}:${String(left%60).padStart(2,"0")})`},1000);
+
+// konfirmasi
+$("#go").onclick=()=>{
+ const bad=id=>{const el=$("#"+id);el.classList.add("bad");el.scrollIntoView({block:"center"});el.focus()};
+ if(!$("#nm").value.trim())return toast("Isi nama anabul"),bad("nm");
+ if(!(parseFloat($("#bb").value)>0))return toast("Isi berat badan yang valid"),bad("bb");
+ if(!$("#ct").value.trim())return toast("Catatan khusus wajib diisi"),bad("ct");
+ if(!S.date||!S.time)return toast("Pilih tanggal dan jam layanan");
+ S.done=true;
+ const p=PK[S.pk],code="PP-"+Math.random().toString(36).slice(2,8).toUpperCase();
+ $("#s2").className="step done";$("#s3").className="step act";$("#s2t").textContent="LANGKAH 02";$("#hold").textContent="✔ Slot Terkonfirmasi";
+ $("#code").textContent=code;
+ $("#dsum").innerHTML=`<div class="row"><span>Anabul</span><b>${$("#nm").value.trim().replace(/</g,"&lt;")} (${S.type})</b></div><div class="row"><span>Paket</span><b>${p.n}</b></div><div class="row"><span>Jadwal</span><b>${fmtD(new Date(S.date))} · ${S.time} WIB</b></div><div class="row"><span>Total</span><b>${rp(p.p)}</b></div>`;
+ $("#dlg").showModal();
+};
+</script>
+</body>
+</html>

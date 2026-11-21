@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keranjang & Checkout – PawPals</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pp.css">
+<style>
+.lay{display:grid;grid-template-columns:1.6fr 1fr;gap:28px;align-items:start}
+.stp{display:flex;gap:10px;align-items:center;font-size:12px;font-weight:600;color:var(--mute);flex-wrap:wrap}
+.stp b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#e8e6e1;margin-right:6px}
+.stp .on{color:var(--ink)}.stp .on b{background:var(--green);color:#fff}
+.it{display:flex;align-items:center;gap:16px;background:#f6f4f0;border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.it .im{width:80px;height:80px;border-radius:10px;background:#fff;display:grid;place-items:center;font-size:36px;flex:none}
+.it .tx{flex:1;min-width:0}.it small{font-size:11px;font-weight:700;color:var(--green);letter-spacing:.03em}
+.it h3{font-size:16px;line-height:1.3}.it .u{font-size:13px}
+.qty{display:flex;align-items:center;gap:6px;background:#fff;border-radius:99px;padding:4px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.qty button{width:30px;height:30px;border-radius:50%;background:#f1efea;font-size:16px;font-weight:700}
+.qty span{min-width:22px;text-align:center;font-weight:700;font-size:14px}
+.sub{font-size:18px;font-weight:800;color:var(--green);min-width:110px;text-align:right}
+.del{font-size:16px;color:var(--mute);padding:6px}.del:hover{color:var(--red)}
+.cr{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.co{background:#f1efea;border:2px solid transparent;border-radius:14px;padding:14px;text-align:left}
+.co.on{border-color:var(--green);background:var(--mint)}
+.co b{display:block;font-size:13px}.co small{display:block;font-size:11px;color:var(--mute)}.co strong{display:block;margin-top:8px;color:var(--green);font-size:17px}
+.cp{display:flex;gap:8px;margin-top:10px}.cp .in{text-transform:uppercase;font-weight:700;letter-spacing:.05em}
+.ok{display:flex;justify-content:space-between;background:var(--mint);color:var(--green);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;margin-top:10px}
+.sm2 .row{font-size:14px}.sm2 .row.t{align-items:end;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.sm2 .row.t strong{font-size:34px;color:var(--green);letter-spacing:-.03em;line-height:1}
+.gar{display:flex;gap:14px;align-items:center;background:#ebe8e1;border-radius:16px;padding:18px;font-size:13px;color:var(--mute)}.gar b{color:var(--ink);display:block}
+@media(max-width:960px){.lay{grid-template-columns:1fr}.cr{grid-template-columns:1fr}.it{flex-wrap:wrap}}
+</style>
+</head>
+<body data-shell="store" data-nav="">
+<div id="hd"></div>
+<main class="wrap">
+ <div class="pg" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:end">
+  <div><div class="crumb"><a href="index.html">Beranda</a> › Katalog › <b>Keranjang &amp; Checkout</b></div><h1>Keranjang &amp; Checkout</h1></div>
+  <div class="stp"><span class="on"><b>1</b>Data &amp; Keranjang</span>—<span><b>2</b>Pembayaran</span>—<span><b>3</b>Selesai</span></div>
+ </div>
+ <div class="lay" style="margin-top:20px">
+  <div>
+   <section class="card"><div class="ch"><h2>🛍 Daftar Produk Pilihan</h2><span class="chip gr" id="cnt"></span></div><div id="items"></div></section>
+   <section class="card"><div class="ch"><h2>🚚 Data Penerima &amp; Pengiriman</h2><span class="chip or">Pengiriman Aman Bergaransi</span></div>
+    <div class="f2">
+     <div><label for="nm">Nama Penerima</label><input class="in" id="nm" value="Sarah Amalia" autocomplete="name"></div>
+     <div><label for="hp">Nomor Telepon / WhatsApp</label><input class="in" id="hp" type="tel" value="0812-3456-7890" autocomplete="tel"></div>
+     <div class="full"><label for="ad">Alamat Lengkap Pengiriman</label><textarea class="in" id="ad">Jl. Melati Indah No. 18, Kebayoran Baru, Jakarta Selatan</textarea></div>
+     <div class="full"><span class="lb">Pilih Layanan Kurir</span><div class="cr" id="cr" role="radiogroup"></div></div>
+     <div class="full"><label for="nt">Catatan untuk Kurir <span class="mu">(Opsional)</span></label><input class="in" id="nt" value="Mohon taruh di teras depan jika tidak ada orang"></div>
+    </div>
+   </section>
+  </div>
+  <aside style="position:sticky;top:130px">
+   <div class="card"><div class="lb">🎟 Kupon &amp; Voucher Diskon</div><div class="cp"><input class="in" id="kp" value="ANABULSEHAT" aria-label="Kode kupon"><button class="btn sm" id="pk">Gunakan</button></div><div id="kok"></div></div>
+   <div class="card sm2"><h2 style="font-size:22px;margin-bottom:14px">Ringkasan Pembayaran</h2>
+    <div class="row"><span id="l1"></span><b id="v1"></b></div>
+    <div class="row" id="rd"><span class="btx">Diskon Kupon Promo 🎁</span><b class="btx" id="v2"></b></div>
+    <div class="row"><span id="l3"></span><b id="v3"></b></div>
+    <div class="row"><span>Biaya Layanan &amp; Asuransi</span><b id="v4"></b></div>
+    <div class="row t"><div><b>Total Tagihan</b><div class="sm mu">Termasuk PPN jika berlaku</div></div><strong id="tot"></strong></div>
+    <button class="btn or blk" id="go" style="margin-top:18px;padding:15px">Lanjutkan ke Pembayaran →</button>
+    <p class="sm mu" style="text-align:center;margin-top:10px;font-weight:600">🔒 Transaksi aman terenkripsi SSL 256-bit</p>
+   </div>
+   <div class="gar"><span style="font-size:28px">🐾</span><div><b>Garansi Nutrisi Original 100%</b>Dikemas dengan kontrol tanggal kedaluwarsa ketat.</div></div>
+  </aside>
+ </div>
+</main>
+<div id="ft"></div>
+<script src="pp.js"></script>
+<script>
+const SH={same:["Same Day Pet Delivery",25000,"Tiba dlm 4–6 jam","🛵"],instan:["Kurir Instan",35000,"Tiba dlm 1–2 jam","⚡"],reg:["Reguler",15000,"Estimasi 1–2 hari","📦"]};
+let cart=getCart(),ship="same",coupon=true;
+function items(){
+ const el=$("#items");$("#cnt").textContent=cart.length+" Item";
+ el.innerHTML=cart.length?cart.map((x,i)=>`<div class="it"><div class="im">${x.e||"🛍"}</div><div class="tx"><small>${esc(x.l||"PRODUK")}</small><h3>${esc(x.n)}</h3><div class="u">${rp(x.p)} <span class="gtx sm">• Stok ${x.s||"50+"}</span></div></div><div class="qty"><button data-a="-" data-i="${i}" aria-label="Kurangi">−</button><span>${x.q}</span><button data-a="+" data-i="${i}" aria-label="Tambah">+</button></div><div class="sub">${rp(x.p*x.q)}</div><button class="del" data-a="x" data-i="${i}" aria-label="Hapus ${esc(x.n)}">🗑</button></div>`).join(""):`<div class="empty">Keranjang masih kosong.<br><a class="btn gr" style="margin-top:14px" href="index.html#produk">Belanja Produk</a></div>`;
+}
+function sum(){
+ const q=cart.reduce((a,x)=>a+x.q,0),sub=cart.reduce((a,x)=>a+x.p*x.q,0),has=cart.length>0,
+ d=coupon&&has?20000:0,sc=has?SH[ship][1]:0,fee=has?2000:0;
+ $("#l1").textContent=`Total Harga Produk (${q} item)`;$("#v1").textContent=rp(sub);
+ $("#rd").style.display=d?"flex":"none";$("#v2").textContent="-"+rp(d);
+ $("#l3").textContent="Biaya Ongkos Kirim ("+SH[ship][0].replace(" Pet Delivery","")+")";$("#v3").textContent=rp(sc);$("#v4").textContent=rp(fee);
+ $("#tot").textContent=rp(sub-d+sc+fee);$("#go").disabled=!has;
+ $("#kok").innerHTML=coupon?`<div class="ok"><span>✔ ANABULSEHAT aktif</span><span>-Rp 20.000</span></div>`:"";
+ return{sub,d,sc,fee,total:sub-d+sc+fee};
+}
+function couriers(){$("#cr").innerHTML=Object.entries(SH).map(([k,v])=>`<button type="button" class="co ${k===ship?"on":""}" role="radio" aria-checked="${k===ship}" data-k="${k}">${v[3]}<b>${v[0]}</b><small>${v[2]}</small><strong>${rp(v[1])}</strong></button>`).join("")}
+function all(){items();couriers();sum();$("#hd .cart b").textContent=cart.length}
+$("#items").onclick=e=>{const b=e.target.closest("[data-a]");if(!b)return;const i=+b.dataset.i,x=cart[i];
+ if(b.dataset.a==="x"){cart.splice(i,1)}
+ else if(b.dataset.a==="+"){if(x.s&&x.q>=x.s)return toast("Stok maksimal "+x.s);x.q++}
+ else if(x.q>1)x.q--;
+ setCart(cart);all()};
+$("#cr").onclick=e=>{const b=e.target.closest("[data-k]");if(b){ship=b.dataset.k;couriers();sum()}};
+$("#pk").onclick=()=>{coupon=$("#kp").value.trim().toUpperCase()==="ANABULSEHAT";toast(coupon?"Kupon dipakai: hemat Rp 20.000":"Kode kupon tidak valid");sum()};
+$("#go").onclick=()=>{
+ const bad=id=>{const el=$("#"+id);el.classList.add("bad");el.focus();el.scrollIntoView({block:"center"})};
+ $$(".in.bad").forEach(x=>x.classList.remove("bad"));
+ const nm=$("#nm").value.trim(),hp=$("#hp").value.trim(),ad=$("#ad").value.trim();
+ if(!nm)return toast("Isi nama penerima"),bad("nm");
+ if(hp.replace(/\D/g,"").length<9)return toast("Nomor telepon belum valid"),bad("hp");
+ if(!ad)return toast("Isi alamat pengiriman"),bad("ad");
+ const s=sum(),o={id:newOrderId(),owner:"me",type:"produk",name:nm,phone:hp,addr:ad,note:$("#nt").value.trim(),items:cart.map(({n,p,q})=>({n,p,q})),ship:{k:SH[ship][0],p:s.sc},fee:s.fee,disc:s.d,total:s.total,method:"Transfer Mandiri VA",bank:"Mandiri",status:"unpaid",ts:Date.now(),proof:null,resi:""};
+ const os=getOrders();os.unshift(o);saveOrders(os);LS.set("pp_active",o.id);setCart([]);location.href="pembayaran.html";
+};
+all();
+</script>
+</body>
+</html>

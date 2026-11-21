@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pembayaran & Riwayat Pesanan – PawPals</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pp.css">
+<style>
+.bn{background:var(--mint);color:var(--green);font-size:13px;font-weight:600;padding:12px 0;text-align:center}
+.lay{display:grid;grid-template-columns:1.15fr 1fr;gap:28px;align-items:start}
+.eb{font-size:12px;font-weight:700;color:var(--green)}
+.tot{background:#f1efea;border-radius:12px;padding:18px 20px;display:flex;justify-content:space-between;align-items:end;gap:12px;margin:14px 0}
+.tot strong{font-size:38px;letter-spacing:-.03em;color:var(--green);line-height:1.1}
+.tm{font-size:12px;font-weight:700;color:var(--brown);background:var(--peach);padding:5px 12px;border-radius:99px}
+.va{background:#f1efea;border-radius:14px;padding:16px;margin-bottom:12px}
+.vn{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:10px;padding:12px 14px;margin:12px 0;gap:10px;flex-wrap:wrap}
+.vn code{font-size:20px;font-weight:800;letter-spacing:.1em}
+.stp{list-style:none;font-size:13px;display:grid;gap:8px;counter-reset:s}
+.stp li{display:flex;gap:10px}.stp li:before{counter-increment:s;content:counter(s);flex:none;width:20px;height:20px;border-radius:50%;background:var(--mint);color:var(--green);font-size:11px;font-weight:700;display:grid;place-items:center;margin-top:2px}
+details.va summary{cursor:pointer;font-weight:700;font-size:14px;list-style:none}details.va summary::-webkit-details-marker{display:none}
+.dz{display:block;text-align:center;border:2px dashed #cfcac0;background:#f6f4f0;border-radius:16px;padding:30px 16px;cursor:pointer;font-size:13px}
+.dz.drag{border-color:var(--green);background:var(--mint)}.dz u{color:var(--green);font-weight:700}
+.dz input{position:absolute;opacity:0;width:1px;height:1px}
+.dz:focus-within{outline:3px solid var(--brown)}
+.fx{display:flex;gap:12px;align-items:center;background:#fff;border-radius:12px;padding:10px;margin-top:10px}
+.fx img,.fx .ph{width:56px;height:56px;border-radius:8px;object-fit:cover;background:#e8e6e1;display:grid;place-items:center;flex:none}
+.fx div{flex:1;min-width:0;font-size:13px}.fx b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fb{background:#f1efea;border-radius:14px;padding:14px;margin-top:16px}
+.oc{padding:20px 24px}
+.oh{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.oh h3{font-size:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.oh h3 span{font-size:12px;font-weight:500;color:var(--mute)}
+.ob{display:flex;justify-content:space-between;align-items:center;gap:14px;background:#f1efea;border-radius:12px;padding:12px 14px;margin:14px 0}
+.ob .im{width:48px;height:48px;border-radius:10px;background:#fff;display:grid;place-items:center;font-size:24px;flex:none}
+.ob .tx{flex:1;min-width:0}.ob small{display:block;font-size:11px;color:var(--mute);text-align:right}.ob strong{font-size:20px;color:var(--green)}
+.of{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;font-weight:600}
+.oa{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:960px){.lay{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-shell="store" data-nav="riwayat">
+<div id="hd"></div>
+<div class="bn" id="bn" hidden></div>
+<main class="wrap">
+ <div class="pg" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:end">
+  <div><div class="eb">🧾 TRANSAKSI PAWPALS</div><h1>Pembayaran &amp; Riwayat Pesanan</h1></div>
+  <div class="tabs" id="mt" role="tablist"><button class="tab on" data-t="pay" role="tab">Selesaikan Pembayaran</button><button class="tab" data-t="rw" role="tab">Riwayat Pesanan <em id="rn"></em></button></div>
+ </div>
+ <section id="pay" style="margin-top:20px"></section>
+ <section id="rw" hidden style="margin-top:20px">
+  <div style="display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:12px;margin-bottom:16px"><div><h1 style="font-size:26px">Daftar Riwayat Pesanan</h1><p class="mu sm">Pantau status pengiriman, jadwal grooming, dan arsip invoice belanja Anda.</p></div><div class="tabs" id="ft2"></div></div>
+  <div id="list"></div>
+ </section>
+</main>
+<div id="ft"></div>
+<dialog id="dlg"><div id="dbd"></div><button class="btn gr" style="margin-top:18px" onclick="this.closest('dialog').close()">Tutup</button></dialog>
+<script src="pp.js"></script>
+<script>
+let orders=getOrders(),act=null,pend=null,filt="all",tab="pay";
+const VA="89012 081234567890";
+const sync=()=>{orders=getOrders();act=orders.find(o=>o.id===LS.get("pp_active"))||null};
+const mine=()=>orders.filter(o=>o.owner==="me").sort((a,b)=>b.ts-a.ts);
+const kb=n=>n>=1e6?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
+const lines=o=>o.items.map(i=>`<div class="row"><span>${esc(i.n)} × ${i.q}</span><b>${rp(i.p*i.q)}</b></div>`).join("")+(o.ship?`<div class="row"><span>🚚 ${esc(o.ship.k)}</span><b>${rp(o.ship.p)}</b></div>`:"")+(o.fee?`<div class="row"><span>Biaya Layanan &amp; Asuransi</span><b>${rp(o.fee)}</b></div>`:"")+(o.disc?`<div class="row"><span>Diskon Kupon</span><b>-${rp(o.disc)}</b></div>`:"");
+
+function payView(){
+ const el=$("#pay");
+ if(!act){el.innerHTML=`<div class="card empty">Belum ada pesanan yang perlu dibayar.<br><a class="btn gr" style="margin-top:14px" href="keranjang.html">Buka Keranjang</a></div>`;return}
+ const o=act,can=o.status==="unpaid"||o.status==="ditolak",paid=["dikemas","kirim","selesai"].includes(o.status);
+ const f=pend||(o.proof&&o.status==="verif"?o.proof:null);
+ const up=paid?`<div class="empty">✅ Pembayaran sudah terverifikasi.<br><span class="sm">Status pesanan: ${ST[o.status][0]}</span></div>`:`
+  ${o.status==="ditolak"?`<div class="ok" style="background:#fde4e0;color:var(--red);padding:10px 14px;border-radius:10px;font-size:12px;font-weight:700;margin-bottom:12px">Bukti transfer sebelumnya ditolak admin. Mohon unggah ulang bukti yang jelas.</div>`:""}
+  ${can?`<label class="dz" id="dz"><input type="file" id="fi" accept="image/jpeg,image/png"><div style="font-size:30px">☁️</div><b>Tarik &amp; Lepaskan berkas di sini</b><br>atau <u>Pilih Berkas dari HP/Komputer</u><div class="sm mu" style="margin-top:8px">Format: JPG, JPEG, PNG (Maksimal 5 MB)</div></label>`:""}
+  ${f?`<div class="fb"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700"><span>📎 Berkas Terlampir</span>${can?`<button class="rtx" id="rm">🗑 Hapus</button>`:""}</div><div class="fx">${f.thumb?`<img src="${f.thumb}" alt="Bukti transfer">`:`<div class="ph">🧾</div>`}<div><b>${esc(f.name)}</b>${kb(f.size)} • <span class="gtx">✔ Ukuran Valid</span></div></div></div>`:""}
+  <button class="btn or blk" id="send" style="margin-top:16px;padding:14px" ${can&&f?"":"disabled"}>${can?"➤ Kirim Bukti Pembayaran":"⏱ Menunggu Verifikasi Admin"}</button>
+  <p class="sm mu" style="text-align:center;margin-top:8px;font-weight:600">Admin akan memeriksa nominal &amp; nomor referensi dalam hitungan menit.</p>`;
+ el.innerHTML=`<div class="lay"><div>
+  <div class="card"><div class="oh"><div><div class="sm mu" style="font-weight:700">ID PESANAN AKTIF</div><h2 style="font-size:26px">#${o.id} <button id="cp1" aria-label="Salin ID" style="font-size:15px">📋</button></h2></div>${can?`<span class="tm" id="cd"></span>`:`<span class="${ST[o.status][1]}">${ST[o.status][0]}</span>`}</div>
+   <div class="tot"><div><div class="mu" style="font-size:13px">Total Tagihan Pembayaran</div><strong>${rp(o.total)}</strong></div><div class="sm btx" style="text-align:right;font-weight:700">Termasuk PPN &amp; Biaya Layanan<br>Tepat hingga digit terakhir</div></div>
+   <div class="sm" style="font-weight:700;margin-bottom:4px">Rincian Paket &amp; Produk (${o.items.length} Item):</div>${lines(o)}</div>
+  <div class="card"><div class="ch"><h2>Instruksi Pembayaran</h2><span class="chip gr">Proses Otomatis</span></div>
+   <div class="va"><b>🏦 Bank Mandiri Virtual Account</b><div class="sm mu">Verifikasi otomatis 24 Jam</div>
+    <div class="vn"><div><div class="sm mu" style="font-weight:700">Nomor Virtual Account</div><code>${VA}</code></div><button class="btn sm gr" id="cp2" style="background:var(--mint);color:var(--green)">📋 Salin Nomor</button></div>
+    <ol class="stp"><li>Buka Livin' by Mandiri, pilih menu <b>Bayar &gt; Virtual Account</b>.</li><li>Masukkan kode instansi <b>89012</b> atau nomor VA lengkap di atas.</li><li>Pastikan nominal yang muncul tepat <b>${rp(o.total)}</b> atas nama <b>PawPals Store</b>. Simpan bukti transfer untuk diunggah di samping.</li></ol></div>
+   <details class="va"><summary>▦ QRIS Instan (GoPay, OVO, BCA, DANA, ShopeePay) <span class="mu" style="float:right">⌄</span></summary><p class="sm mu" style="margin-top:10px">Pindai kode QR melalui aplikasi perbankan atau e-wallet apa pun. Untuk demo, gunakan Virtual Account di atas lalu unggah bukti pembayaran.</p></details></div>
+ </div><div>
+  <div class="card"><div class="ch"><h2>Unggah Bukti Transfer</h2><span class="chip gr">🛡 Aman &amp; Terenkripsi</span></div><p class="sm mu" style="margin-bottom:14px">Mohon lampirkan struk ATM, bukti transfer m-Banking, atau screenshot pembayaran resmi agar admin dapat segera memproses order Anda.</p>${up}</div>
+  <div class="card" style="background:#ebe8e1"><b>❓ Butuh Konfirmasi Cepat?</b><p class="sm mu" style="margin:6px 0 8px">Jika pembayaran belum terverifikasi setelah 30 menit, hubungi Customer Care PawPals via WhatsApp dengan menyertakan kode #${o.id}.</p><a class="gtx sm" style="font-weight:700" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent("Halo PawPals, saya butuh konfirmasi pembayaran pesanan #"+o.id)}">Buka WhatsApp Support ↗</a></div>
+ </div></div>`;
+ const cpy=(t,m)=>{(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(m),()=>toast(t))};
+ $("#cp1").onclick=()=>cpy("#"+o.id,"ID pesanan disalin");$("#cp2").onclick=()=>cpy(VA.replace(/\s/g,""),"Nomor VA disalin");
+ const dz=$("#dz");
+ if(dz){const fi=$("#fi");fi.onchange=()=>fi.files[0]&&take(fi.files[0]);
+  ["dragover","dragenter"].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.add("drag")}));
+  ["dragleave","drop"].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.remove("drag")}));
+  dz.addEventListener("drop",e=>e.dataTransfer.files[0]&&take(e.dataTransfer.files[0]))}
+ if($("#rm"))$("#rm").onclick=()=>{pend=null;payView()};
+ if($("#send"))$("#send").onclick=()=>{if(!pend)return;o.proof={...pend,ts:Date.now()};o.status="verif";pend=null;saveOrders(orders);toast("Bukti terkirim. Menunggu verifikasi admin");all()};
+}
+function take(file){
+ if(!/^image\/(jpeg|png)$/.test(file.type))return toast("Format harus JPG, JPEG, atau PNG");
+ if(file.size>5*1048576)return toast("Ukuran berkas maksimal 5 MB");
+ const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,360/im.width),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);pend={name:file.name,size:file.size,thumb:c.toDataURL("image/jpeg",.7)};payView()};im.onerror=()=>toast("Berkas gambar tidak bisa dibaca");im.src=r.result};r.readAsDataURL(file);
+}
+function banner(){const b=$("#bn"),v=act&&act.status==="verif";b.hidden=!v;if(v)b.textContent="✔ Status pesanan saat ini: Menunggu Verifikasi Admin (Maks. 15–30 menit)"}
+function tick(){const c=$("#cd");if(!c||!act)return;const s=Math.max(0,Math.floor((act.ts+864e5-Date.now())/1e3));c.textContent="⏳ "+pad(s/3600|0)+":"+pad(s%3600/60|0)+":"+pad(s%60)}
+setInterval(tick,1000);
+
+/* riwayat */
+function history(){
+ const all=mine(),cnt=s=>all.filter(o=>o.status===s).length;
+ $("#rn").textContent=all.length;
+ const fs=[["all","Semua",all.length],...Object.keys(ST).filter(s=>cnt(s)).map(s=>[s,ST[s][0],cnt(s)])];
+ if(!fs.some(x=>x[0]===filt))filt="all";
+ $("#ft2").innerHTML=fs.map(x=>`<button class="tab ${x[0]===filt?"on":""}" data-f="${x[0]}">${x[1]} (${x[2]})</button>`).join("");
+ const L=all.filter(o=>filt==="all"||o.status===filt);
+ $("#list").innerHTML=L.length?L.map(o=>{
+  const g=o.type==="grooming",ic=g?"🐾":o.status==="kirim"||o.status==="selesai"?"🚚":"🛍";
+  const msg={unpaid:"⏳ Menunggu pembayaran Anda.",verif:`⏱ Bukti transfer diunggah ${ago(o.proof?o.proof.ts:o.ts)}. Sedang ditinjau finance PawPals.`,ditolak:"⚠ Bukti transfer ditolak. Mohon unggah ulang.",dikemas:"📦 Pembayaran terverifikasi. Pesanan sedang dikemas.",kirim:"🚚 Dalam pengiriman"+(o.resi?" • No. Resi: "+esc(o.resi):""),selesai:"✔ "+(g?"Selesai pada "+fmtD(o.ts)+". Perawatan garansi kesehatan aktif 7 hari.":"Diterima oleh "+esc(o.name)+(o.resi?" • Resi: "+esc(o.resi):""))}[o.status];
+  const btn=(o.status==="unpaid"||o.status==="ditolak")?`<button class="btn sm gr" data-pay="${o.id}">Bayar Sekarang</button>`:o.status==="verif"?`<button class="btn sm" data-pay="${o.id}">🧾 Perbarui Bukti</button>`:`<button class="btn sm" data-inv="${o.id}">⬇ Unduh Invoice</button>`;
+  const ex=o.status==="selesai"?(g?`<a class="btn sm gr" href="booking.html">Booking Ulang</a>`:`<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent("Halo PawPals, soal pesanan #"+o.id)}">🎧 Hubungi CS</a>`):"";
+  return `<article class="card oc"><div class="oh"><h3>${ic} #${o.id} <span>${fmtD(o.ts,1)} • ${g?"Layanan Klinik &amp; Salon":o.items.length+" Produk"}</span></h3>${stChip(o.status)}</div>
+  <div class="ob"><div class="im">${g?"✂️":"📦"}</div><div class="tx"><b>${esc(o.items[0].n)}${o.items.length>1?" + "+(o.items.length-1)+" produk lain":""}</b><div class="sm mu">${g?esc(o.note):"Metode: "+esc(o.method)}</div></div><div><small>${g?"Total Biaya Layanan":"Total Pembayaran"}</small><strong>${rp(o.total)}</strong></div></div>
+  <div class="of"><span class="${o.status==="selesai"||o.status==="dikemas"?"gtx":"btx"}">${msg}</span><div class="oa">${btn}<button class="btn sm ${o.status==="verif"||o.status==="unpaid"?"gr":""}" data-det="${o.id}">Lihat Detail ›</button>${ex}</div></div></article>`}).join(""):`<div class="card empty">Belum ada pesanan pada kategori ini.</div>`;
+}
+$("#ft2").onclick=e=>{const b=e.target.closest("[data-f]");if(b){filt=b.dataset.f;history()}};
+$("#list").onclick=e=>{
+ const p=e.target.closest("[data-pay]"),d=e.target.closest("[data-det]"),v=e.target.closest("[data-inv]");
+ if(p){LS.set("pp_active",p.dataset.pay);pend=null;sync();all();show("pay");scrollTo(0,0)}
+ const id=(d||v||{dataset:{}}).dataset.det||(v&&v.dataset.inv),o=orders.find(x=>x.id===id);
+ if(d&&o){$("#dbd").innerHTML=`<h2>Detail #${o.id}</h2><div class="row"><span>Tanggal</span><b>${fmtD(o.ts,1)}</b></div><div class="row"><span>Status</span><b>${ST[o.status][0]}</b></div><div class="row"><span>Metode</span><b>${esc(o.method)}</b></div><div class="row"><span>Penerima</span><b>${esc(o.name)}</b></div><div class="row"><span>Alamat</span><b style="max-width:60%">${esc(o.addr)}</b></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0 6px">${lines(o)}<div class="row" style="font-size:16px"><b>Total</b><b class="gtx">${rp(o.total)}</b></div>`;$("#dlg").showModal()}
+ if(v&&o)dl("Invoice-"+o.id+".html",`<!doctype html><meta charset="utf-8"><title>Invoice ${o.id}</title><body style="font-family:sans-serif;max-width:560px;margin:30px auto"><h2>PawPals – Invoice #${o.id}</h2><p>${fmtD(o.ts,1)}<br>${esc(o.name)}<br>${esc(o.addr)}</p><table width="100%" cellpadding="6">${o.items.map(i=>`<tr><td>${esc(i.n)} × ${i.q}</td><td align="right">${rp(i.p*i.q)}</td></tr>`).join("")}${o.ship?`<tr><td>${esc(o.ship.k)}</td><td align="right">${rp(o.ship.p)}</td></tr>`:""}${o.fee?`<tr><td>Biaya layanan</td><td align="right">${rp(o.fee)}</td></tr>`:""}${o.disc?`<tr><td>Diskon</td><td align="right">-${rp(o.disc)}</td></tr>`:""}<tr><th align="left">Total</th><th align="right">${rp(o.total)}</th></tr></table><p>Status: ${ST[o.status][0]}</p></body>`,"text/html");
+};
+function show(t){tab=t;$("#pay").hidden=t!=="pay";$("#rw").hidden=t!=="rw";$$("#mt .tab").forEach(b=>b.classList.toggle("on",b.dataset.t===t));if(t==="rw")history();else{payView();tick()}}
+$("#mt").onclick=e=>{const b=e.target.closest("[data-t]");if(b)show(b.dataset.t)};
+function all(){banner();$("#rn").textContent=mine().length;show(tab)}
+sync();banner();$("#rn").textContent=mine().length;show(location.hash==="#riwayat"?"rw":"pay");
+</script>
+</body>
+</html>

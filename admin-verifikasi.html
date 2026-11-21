@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verifikasi Pembayaran & Pesanan – PawPals Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pp.css">
+<style>
+.lay{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;align-items:start}
+.oi{background:#fff;border-radius:14px;padding:16px 18px;margin-bottom:12px;cursor:pointer;border-left:5px solid transparent;width:100%;text-align:left;display:block}
+.oi.on{border-left-color:var(--green);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.oi .a{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.oi .a b.n{font-size:18px;display:block}.oi .a .p{font-size:20px;font-weight:800;text-align:right}
+.oi .z{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute);margin-top:10px;padding-top:10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.pn{background:#fff;border-radius:16px;padding:22px;position:sticky;top:90px;max-height:calc(100vh - 110px);overflow:auto}
+.sec{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--mute);margin:20px 0 10px}
+.bx{background:#f1efea;border-radius:14px;padding:14px;font-size:13px}
+.pf{position:relative;border-radius:14px;overflow:hidden;background:#34423a;min-height:150px;display:grid;place-items:center}
+.pf img{width:100%;max-height:300px;object-fit:contain;display:block;background:#1d2a23}
+.pf .ph{color:#cdd8d1;text-align:center;padding:30px;font-size:13px}
+.pf .cap{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:12px;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+.tt{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--mint);border-radius:12px;padding:14px 16px;margin-top:12px;font-weight:700;font-size:14px}.tt strong{font-size:26px;color:var(--green)}
+.ac2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rs{display:flex;gap:8px;margin-top:10px}.rs .in{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+@media(max-width:1000px){.lay{grid-template-columns:1fr}.pn{position:static;max-height:none}}
+</style>
+</head>
+<body data-shell="admin" data-nav="verif">
+<div class="adm"><aside class="sb" id="sb"></aside><div class="am"><div id="tb"></div>
+<main class="ac">
+ <section class="card hero">
+  <div><div class="sm gtx" style="font-weight:700">🛡 Modul Kasir &amp; Pemenuhan Pesanan</div><h1>Verifikasi Pembayaran &amp; Pemrosesan Pesanan</h1><p class="mu" style="font-size:14px">Tinjau bukti transfer manual dan kelola alur pengiriman kurir pet-safe.</p></div>
+  <div class="bx" style="display:flex;gap:14px;align-items:center"><span><span class="btx">●</span> Menunggu Verifikasi: <b style="font-size:22px;color:var(--brown);margin-left:6px" id="wn"></b></span><button class="btn sm" id="rf">⟳ Segarkan</button></div>
+ </section>
+ <div class="tabs" id="tabs" style="margin-bottom:18px"></div>
+ <div class="lay">
+  <div><div class="card" style="padding:14px"><input class="in" id="fq" type="search" placeholder="Cari Order ID (#PWP-...) atau nama" aria-label="Cari pesanan" style="background:#f6f4f0"></div><div id="list"></div><div class="card" style="font-size:13px;font-weight:600" id="info"></div></div>
+  <aside class="pn" id="pn"></aside>
+ </div>
+</main></div></div>
+<script src="pp.js"></script>
+<script>
+let orders=getOrders(),flt="verif",sel=null,q=new URLSearchParams(location.search);
+const TABS=[["all","Semua Pesanan",o=>1],["verif","Perlu Verifikasi",o=>o.status==="verif"],["dikemas","Sedang Diproses / Dikemas",o=>o.status==="dikemas"],["kirim","Dalam Pengiriman",o=>o.status==="kirim"],["selesai","Selesai",o=>o.status==="selesai"]];
+$("#fq").value=q.get("q")||"";
+if(q.get("id")){sel=q.get("id");const o=orders.find(x=>x.id===sel);if(o)flt=o.status==="unpaid"||o.status==="ditolak"?"all":o.status}
+const vis=()=>{const t=TABS.find(x=>x[0]===flt)[2],k=$("#fq").value.trim().toLowerCase();return orders.filter(o=>t(o)&&(!k||(o.id+" "+o.name).toLowerCase().includes(k))).sort((a,b)=>b.ts-a.ts)};
+function save(){saveOrders(orders);render()}
+function render(){
+ const pend=orders.filter(o=>o.status==="verif").length;$("#wn").textContent=pend;
+ const pn=$("#pendN");if(pn){pn.textContent=pend+" Baru";pn.hidden=!pend}
+ $("#tabs").innerHTML=TABS.map(t=>`<button class="tab ${t[0]===flt?"on":""} ${t[0]==="verif"?"or":""}" data-f="${t[0]}">${t[1]} <em>${orders.filter(t[2]).length}</em></button>`).join("");
+ const L=vis();if(!L.some(o=>o.id===sel))sel=L[0]?L[0].id:null;
+ $("#list").innerHTML=L.length?L.map(o=>`<button class="oi ${o.id===sel?"on":""}" data-id="${o.id}"><div class="a"><div><b class="gtx" style="font-size:13px">#${o.id} ${stChip(o.status)}</b><b class="n">${esc(o.name)}</b></div><div><div class="p">${rp(o.total)}</div><div class="sm mu" style="text-align:right">${o.items.length} item${o.ship?" + "+esc(o.ship.k.split(" ")[0]):""}</div></div></div><div class="z"><span>🏦 ${esc(o.method)}</span><span>${o.status==="verif"?"🕑 Diunggah "+ago(o.proof?o.proof.ts:o.ts):o.status==="kirim"?"🚚 Resi: "+esc(o.resi):ST[o.status][0]}</span></div></button>`).join(""):`<div class="card empty">Tidak ada pesanan pada tab ini.</div>`;
+ $("#info").textContent=`Menampilkan ${L.length} dari ${orders.length} pesanan`;
+ detail(orders.find(o=>o.id===sel));
+}
+function detail(o){
+ const el=$("#pn");if(!o){el.innerHTML=`<div class="empty">Pilih pesanan untuk meninjau detailnya.</div>`;return}
+ const p=o.proof,ph=(o.phone||"").trim();
+ el.innerHTML=`<div style="display:flex;justify-content:space-between;gap:10px;align-items:start"><div><div class="sm mu" style="font-weight:700">PANEL VERIFIKASI</div><h2 style="font-size:22px">#${o.id}</h2></div>${stChip(o.status)}</div>
+ <div class="sec">A. DETAIL PEMESAN &amp; PENGIRIMAN</div>
+ <div class="bx"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b>👤 ${esc(o.name)}</b><div class="sm mu">${esc(ph)}</div></div><a class="chip gr" target="_blank" rel="noopener" href="${waLink(ph,"Halo "+o.name+", ini admin PawPals terkait pesanan #"+o.id)}">💬 WhatsApp</a></div><hr style="border:0;border-top:1px solid var(--line);margin:12px 0"><b>📍 ${esc(o.addr)}</b>${o.note?`<div class="sm mu" style="margin-top:4px">Catatan: ${esc(o.note)}</div>`:""}${o.ship?`<div class="gtx sm" style="font-weight:700;margin-top:10px">🚚 Kurir: ${esc(o.ship.k)}</div>`:""}</div>
+ <div class="sec">B. RINCIAN ITEM PESANAN</div>
+ ${o.items.map(i=>`<div class="row"><span style="color:var(--ink)"><b>${esc(i.n)}</b><br><span class="sm mu">${i.q}x @ ${rp(i.p)}</span></span><b>${rp(i.p*i.q)}</b></div>`).join("")}
+ ${o.ship?`<div class="row"><span>Tarif ${esc(o.ship.k)}</span><b>${rp(o.ship.p)}</b></div>`:""}${o.fee?`<div class="row"><span>Biaya layanan &amp; asuransi</span><b>${rp(o.fee)}</b></div>`:""}${o.disc?`<div class="row"><span>Diskon kupon</span><b>-${rp(o.disc)}</b></div>`:""}
+ <div class="tt"><span>Total Tagihan Yang Harus Dibayar</span><strong>${rp(o.total)}</strong></div>
+ <div class="sec">C. BUKTI TRANSFER YANG DIUNGGAH</div>
+ ${p?`<div class="pf">${p.thumb?`<img src="${p.thumb}" alt="Bukti transfer ${esc(o.name)}">`:`<div class="ph">🧾<br>${esc(p.name)}<br><span class="sm">(pratinjau tidak tersedia untuk data contoh)</span></div>`}<div class="cap"><span>Nominal Tertera: ${rp(o.total)}</span><span style="background:var(--green);padding:2px 8px;border-radius:6px">Cek nominal</span></div></div>
+ <div class="bx mono" style="margin-top:10px"><div class="row" style="margin:0"><span>Rekening Pengirim:</span><b>${esc(o.bank)} a.n ${esc(o.name.toUpperCase())}</b></div><div class="row"><span>Rekening Tujuan:</span><b>Mandiri PawPals Utama (137-00-19283-9)</b></div><div class="row"><span>Waktu Unggah:</span><b>${fmtD(p.ts,1)}</b></div></div>`:`<div class="bx empty" style="padding:24px">${o.status==="unpaid"?"Pelanggan belum mengunggah bukti transfer.":"Tidak ada bukti transfer terlampir (pembayaran sudah diproses)."}</div>`}
+ <div class="sec">D. TINDAKAN ADMIN &amp; KEPUTUSAN</div>
+ <div class="ac2"><button class="btn gr" id="ok" ${o.status==="verif"?"":"disabled"}>✔ Terima &amp; Verifikasi</button><button class="btn rd" id="no" ${o.status==="verif"?"":"disabled"}>✖ Tolak Bukti Transfer</button></div>
+ <div class="bx" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center"><b>🚚 Perbarui No. Resi &amp; Alur Pengiriman</b><span class="chip">${o.status==="kirim"?"Dalam Kirim":"Siap Kirim"}</span></div>
+ <div class="rs"><input class="in" id="rs" value="${esc(o.resi)}" placeholder="PWS-EXP-0000" aria-label="Nomor resi" ${["dikemas","kirim"].includes(o.status)?"":"disabled"}><button class="btn gr sm" id="ur" ${["dikemas","kirim"].includes(o.status)?"":"disabled"}>Update Resi</button></div>
+ <a class="btn blk sm" style="margin-top:10px;background:#fff;color:var(--green)" target="_blank" rel="noopener" href="${waLink(ph,"Halo "+o.name+", pesanan #"+o.id+" sudah dikirim. No. resi: "+(o.resi||"-")+". Terima kasih telah berbelanja di PawPals 🐾")}">💬 Kirim Notifikasi Resi WhatsApp ke Customer</a></div>
+ ${o.status==="kirim"?`<button class="btn blk" id="fin" style="margin-top:12px">📦 Tandai Pesanan Selesai</button>`:""}`;
+ const set=(s,m)=>{o.status=s;saveOrders(orders);toast(m);render()};
+ if($("#ok"))$("#ok").onclick=()=>set("dikemas","Pembayaran diverifikasi. Pesanan masuk antrean dikemas");
+ if($("#no"))$("#no").onclick=()=>{if(confirm("Tolak bukti transfer #"+o.id+"? Pelanggan diminta mengunggah ulang."))set("ditolak","Bukti ditolak. Pelanggan diminta unggah ulang")};
+ if($("#ur"))$("#ur").onclick=()=>{const r=$("#rs").value.trim();if(!r)return toast("Isi nomor resi lebih dulu");o.resi=r;o.status="kirim";set("kirim","Resi diperbarui. Pesanan dalam pengiriman")};
+ if($("#fin"))$("#fin").onclick=()=>set("selesai","Pesanan ditandai selesai");
+}
+$("#tabs").onclick=e=>{const b=e.target.closest("[data-f]");if(b){flt=b.dataset.f;render()}};
+$("#list").onclick=e=>{const b=e.target.closest("[data-id]");if(b){sel=b.dataset.id;render()}};
+$("#fq").oninput=render;
+$("#rf").onclick=()=>{orders=getOrders();render();toast("Data diperbarui")};
+render();
+</script>
+</body>
+</html>

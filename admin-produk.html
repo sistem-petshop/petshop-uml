@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kelola Produk & Stok – PawPals Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pp.css">
+<style>
+.kpi{display:flex;gap:14px;align-items:center}.kpi strong{font-size:22px;margin:2px 0 0}
+.fb{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:16px 20px}.fb .in{background:#f1efea;width:auto}.fb .grow{flex:1;min-width:200px}
+.tbl td.pi{display:flex;gap:12px;align-items:center;border-bottom:0}
+.tbl tr.s{background:#f1f6f2}
+.pt{width:44px;height:44px;border-radius:8px;background:#f1efea;display:grid;place-items:center;font-size:22px;flex:none}
+.pi b{display:block;font-size:14px}.pi small{font-size:11px;color:var(--mute)}
+.tbl td{border-bottom:1px solid var(--line)}
+.tbl .pi{border-bottom:1px solid var(--line)}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--green)}
+.pg2{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 4px 0;font-size:13px}
+.pn2{display:flex;gap:6px}.pn2 button{min-width:32px;height:32px;border-radius:8px;background:#f1efea;font-weight:700;font-size:13px}.pn2 button.on{background:var(--green);color:#fff}
+.bk{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#e8e5dd;border-radius:14px;padding:14px 18px;font-size:13px;font-weight:700}
+.bk .n{width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center}
+.bk .btn{background:#fff}.bk .btn.rd{background:#fde4e0}
+.ep{position:sticky;top:90px}
+.ep .pv{display:flex;gap:12px;align-items:center;background:#f1efea;border-radius:12px;padding:12px;margin:14px 0}
+.tg{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#f1efea;border-radius:12px;padding:12px 14px;font-size:13px}
+.tg small{display:block;color:var(--mute);font-size:11px}
+.sw{appearance:none;width:46px;height:26px;border-radius:99px;background:#c9c5bb;position:relative;cursor:pointer;flex:none;transition:background .15s}
+.sw:before{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw:checked{background:var(--green)}.sw:checked:before{transform:translateX(20px)}
+.mb{display:flex;align-items:end;gap:5px;height:44px;background:#f1efea;border-radius:10px;padding:6px 8px}.mb i{flex:1;background:#a8c7b6;border-radius:3px 3px 0 0}.mb i:last-child{background:var(--green)}
+.sy{background:#d9efe2;border-radius:16px;padding:18px;font-size:13px;color:#2d4a3b}.sy b{display:block;color:var(--green)}
+@media(max-width:1000px){.ep{position:static}}
+</style>
+</head>
+<body data-shell="admin" data-nav="produk">
+<div class="adm"><aside class="sb" id="sb"></aside><div class="am"><div id="tb"></div>
+<main class="ac">
+ <section class="hero" style="margin-bottom:20px">
+  <div><span class="chip gr">INVENTARIS V2.4</span> <span class="sm mu">• Pembaruan otomatis baru saja</span><h1>Katalog &amp; Manajemen Inventaris Produk</h1><p class="mu" style="font-size:14px">Kelola ketersediaan stok, harga jual, kategori nutrisi &amp; obat anabul di seluruh cabang klinik.</p></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap"><label class="btn" style="margin:0;cursor:pointer">⬆ Import Stok Massal<input type="file" id="imp" accept=".csv,text/csv" hidden></label><button class="btn" id="exp">⬇ Export CSV</button><button class="btn gr" id="add">⊕ Tambah Produk Baru</button></div>
+ </section>
+ <div class="kpis" id="kp"></div>
+ <section class="card fb"><input class="in grow" id="q" type="search" placeholder="Cari SKU, nama produk makanan, vitamin" aria-label="Cari produk"><select class="in sel" id="fc" aria-label="Kategori"></select><select class="in sel" id="fs" aria-label="Status stok"><option value="">Semua Status Stok</option><option value="aman">Aman</option><option value="menipis">Menipis</option><option value="habis">Habis / Kosong</option></select><label style="margin:0" class="sm">Urutkan:</label><select class="in sel" id="so" aria-label="Urutkan"><option value="new">Terbaru Ditambahkan</option><option value="nama">Nama A–Z</option><option value="harga">Harga Tertinggi</option><option value="stok">Stok Terendah</option></select></section>
+ <div class="g2">
+  <div>
+   <section class="card" style="padding:12px 16px 16px"><div class="tw"><table class="tbl"><thead><tr><th style="width:30px"><input type="checkbox" id="ca" aria-label="Pilih semua di halaman"></th><th>INFO PRODUK &amp; SKU</th><th>HARGA (JUAL / HPP)</th><th>STOK TERSEDIA</th></tr></thead><tbody id="tb2"></tbody></table></div>
+    <div class="pg2"><span id="cn"></span><div class="pn2" id="pn2"></div></div></section>
+   <div class="bk" id="bk" hidden><span class="n" id="bn"></span><span id="bt">Produk dipilih untuk tindakan serentak</span><span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="bh">⟳ Update Harga Massal</button><button class="btn sm" id="ba">🗄 Arsipkan</button><button class="btn sm rd" id="bd">🗑 Hapus</button></span></div>
+  </div>
+  <aside class="ep"><section class="card" id="ep"></section><div class="sy"><b>💡 Sinkronisasi Otomatis Kasir (POS)</b>Setiap perubahan harga &amp; stok langsung ter-update ke scanner barcode kasir cabang Senopati dalam kurun 5 detik.</div></aside>
+ </div>
+</main></div></div>
+<script src="pp.js"></script>
+<script>
+const CATS=["Makanan Anjing","Makanan Kucing","Vitamin & Imun","Medicated Care","Aksesoris","Perawatan Hygiene"],PS=6;
+let prods=getProds(),sel=prods[0]?prods[0].id:null,chk=new Set(),pg=1;
+const cl=s=>s==="Habis"?"rd":s==="Menipis"?"or":"gr";
+$("#fc").innerHTML=`<option value="">Semua Kategori</option>`+CATS.map(c=>`<option>${esc(c)}</option>`).join("");
+const save=()=>saveProds(prods);
+function list(){
+ const k=$("#q").value.trim().toLowerCase(),c=$("#fc").value,s=$("#fs").value,o=$("#so").value;
+ let L=prods.filter(p=>(!k||(p.n+" "+p.id).toLowerCase().includes(k))&&(!c||p.cat===c)&&(!s||(s==="habis"?p.s<=0:s==="menipis"?p.s>0&&p.s<=p.m:p.s>p.m)));
+ if(o==="nama")L.sort((a,b)=>a.n.localeCompare(b.n));if(o==="harga")L.sort((a,b)=>b.p-a.p);if(o==="stok")L.sort((a,b)=>a.s-b.s);
+ return L;
+}
+function render(){
+ const hb=prods.filter(p=>p.s<=0).length,mn=prods.filter(p=>p.s>0&&p.s<=p.m).length;
+ $("#kp").innerHTML=[["📋","TOTAL SKU TERDAFTAR",prods.length+" Item",""],["✅","STOK AMAN",(prods.length-hb-mn)+" SKU",""],["⚠️","STOK MENIPIS",mn+" SKU","btx"],["🛒","HABIS / KOSONG",hb+" SKU","rtx"]].map(x=>`<div class="kpi"><span class="ic ${x[3]==="rtx"?"r":x[3]?"":"g"}">${x[0]}</span><div><small>${x[1]}</small><strong class="${x[3]}">${x[2]}</strong></div></div>`).join("");
+ const L=list(),pages=Math.max(1,Math.ceil(L.length/PS));if(pg>pages)pg=pages;
+ const V=L.slice((pg-1)*PS,pg*PS);
+ $("#tb2").innerHTML=V.length?V.map(p=>{const[t,c]=stockInfo(p);return `<tr class="cl ${p.id===sel?"s":""}" data-id="${p.id}"><td><input type="checkbox" data-c="${p.id}" ${chk.has(p.id)?"checked":""} aria-label="Pilih ${esc(p.n)}"></td><td><div style="display:flex;gap:12px;align-items:center"><span class="pt">${p.e}</span><div class="pi"><b>${esc(p.n)}</b><small>${esc(p.id)}</small> <span class="chip ${p.on?"gr":""}">${p.on?esc(p.cat):"Disembunyikan"}</span></div></div></td><td><b>${rp(p.p)}</b><div class="sm mu">HPP: ${rp(p.h)}</div></td><td style="min-width:120px"><b>${p.s}</b> ${esc(p.u)} <span class="chip ${c}">${t}</span><div class="bar" style="margin-top:6px"><i class="${c==="gr"?"":"o"}" style="width:${Math.min(100,p.s/(p.m*6)*100)}%"></i></div></td></tr>`}).join(""):`<tr><td colspan="4" class="empty">Tidak ada produk yang cocok.</td></tr>`;
+ $("#cn").innerHTML=L.length?`Menampilkan <b>${(pg-1)*PS+1}–${(pg-1)*PS+V.length}</b> dari <b>${L.length}</b> produk`+(chk.size?` | ${chk.size} produk terpilih`:""):"0 produk";
+ $("#pn2").innerHTML=Array.from({length:pages},(_,i)=>`<button class="${i+1===pg?"on":""}" data-p="${i+1}" aria-label="Halaman ${i+1}">${i+1}</button>`).join("");
+ $("#bk").hidden=!chk.size;$("#bn").textContent=chk.size;
+ $("#ca").checked=V.length>0&&V.every(p=>chk.has(p.id));
+ panel();
+}
+function panel(){
+ const p=prods.find(x=>x.id===sel),el=$("#ep");
+ if(!p){el.innerHTML=`<div class="empty">Pilih produk untuk mengedit.</div>`;return}
+ el.innerHTML=`<div class="ch"><h2>● Panel Edit Cepat</h2><span class="chip gr">${esc(p.id)}</span></div>
+ <div class="pv"><span class="pt" style="background:#fff">${p.e}</span><div><b>${esc(p.n)}</b><div class="sm mu">Cabang: Senopati &amp; Bintaro</div></div></div>
+ <div class="f2"><div class="full"><label for="en">Nama Produk</label><input class="in" id="en" value="${esc(p.n)}"></div>
+ <div><label for="ep1">Harga Jual (IDR)</label><input class="in" id="ep1" type="number" min="0" value="${p.p}"></div><div><label for="eh">HPP Modal (IDR)</label><input class="in" id="eh" type="number" min="0" value="${p.h}"></div>
+ <div><label for="es">Jumlah Stok Fisik (${esc(p.u)})</label><input class="in" id="es" type="number" min="0" value="${p.s}"></div><div><label for="em">Batas Minimum (Alert)</label><input class="in" id="em" type="number" min="0" value="${p.m}"></div>
+ <div class="full"><label for="ec">Kategori Produk</label><select class="in" id="ec">${CATS.map(c=>`<option ${c===p.cat?"selected":""}>${esc(c)}</option>`).join("")}</select></div></div>
+ <div class="tg" style="margin:16px 0"><div><b>Tampilkan di POS &amp; Toko</b><small>Konsumen dapat melihat produk ini</small></div><input type="checkbox" class="sw" id="eo" ${p.on?"checked":""} aria-label="Tampilkan di toko"></div>
+ <div style="display:flex;gap:10px"><button class="btn gr" id="sv" style="flex:1">✔ Simpan Perubahan</button><button class="btn" id="rs" aria-label="Kembalikan">↺</button></div>
+ <div class="sm mu" style="margin:16px 0 6px;display:flex;justify-content:space-between"><span>Riwayat Perputaran (7 Hari)</span><b class="gtx">+18% vs minggu lalu</b></div><div class="mb"><i style="height:30%"></i><i style="height:45%"></i><i style="height:38%"></i><i style="height:60%"></i><i style="height:48%"></i><i style="height:75%"></i><i style="height:100%"></i></div>`;
+ $("#sv").onclick=()=>{const n=$("#en").value.trim();if(!n){$("#en").classList.add("bad");return toast("Nama produk wajib diisi")}
+  Object.assign(p,{n,p:+$("#ep1").value||0,h:+$("#eh").value||0,s:+$("#es").value||0,m:+$("#em").value||0,cat:$("#ec").value,on:$("#eo").checked?1:0});save();render();toast("Perubahan tersimpan & tersinkron ke kasir")};
+ $("#rs").onclick=()=>{panel();toast("Form dikembalikan")};
+}
+$("#tb2").onclick=e=>{const c=e.target.closest("[data-c]"),r=e.target.closest("[data-id]");
+ if(c){c.checked?chk.add(c.dataset.c):chk.delete(c.dataset.c);render();return}
+ if(r){sel=r.dataset.id;render()}};
+$("#ca").onchange=e=>{const k=$("#q").value;list().slice((pg-1)*PS,pg*PS).forEach(p=>e.target.checked?chk.add(p.id):chk.delete(p.id));render()};
+$("#pn2").onclick=e=>{const b=e.target.closest("[data-p]");if(b){pg=+b.dataset.p;render()}};
+["q","fc","fs","so"].forEach(i=>$("#"+i).addEventListener("input",()=>{pg=1;render()}));
+$("#bh").onclick=()=>{const v=parseFloat((prompt("Ubah harga jual sebesar berapa persen? (contoh: 5 untuk naik 5%, -10 untuk turun 10%)")||"").replace(",","."));if(isNaN(v))return;prods.filter(p=>chk.has(p.id)).forEach(p=>p.p=Math.max(0,Math.round(p.p*(1+v/100)/500)*500));save();render();toast("Harga "+chk.size+" produk diperbarui "+(v>0?"+":"")+v+"%")};
+$("#ba").onclick=()=>{prods.filter(p=>chk.has(p.id)).forEach(p=>p.on=0);const n=chk.size;chk.clear();save();render();toast(n+" produk diarsipkan (disembunyikan dari toko)")};
+$("#bd").onclick=()=>{if(!confirm("Hapus "+chk.size+" produk terpilih secara permanen?"))return;prods=prods.filter(p=>!chk.has(p.id));chk.clear();if(!prods.some(p=>p.id===sel))sel=prods[0]?prods[0].id:null;save();render();toast("Produk dihapus")};
+function add(){const p={id:"SKU-NEW-"+(100+Math.floor(Math.random()*900)),n:"Produk Baru",cat:CATS[0],p:0,h:0,s:0,m:5,u:"Unit",e:"📦",on:1};prods.unshift(p);sel=p.id;$("#so").value="new";pg=1;save();render();$("#en").focus();$("#en").select();toast("Isi detail produk lalu simpan")}
+$("#add").onclick=add;
+$("#exp").onclick=()=>dl("produk-stok.csv","SKU,Nama,Kategori,Harga,HPP,Stok,Min\n"+prods.map(p=>[p.id,'"'+p.n+'"','"'+p.cat+'"',p.p,p.h,p.s,p.m].join(",")).join("\n"),"text/csv");
+$("#imp").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{let n=0;r.result.split(/\r?\n/).forEach(l=>{const[a,b]=l.split(/[,;]/).map(x=>x.trim());const p=prods.find(x=>x.id===a);if(p&&b!==""&&!isNaN(+b)){p.s=+b;n++}});save();render();toast(n?n+" stok diperbarui dari CSV":"Tidak ada SKU yang cocok (format: SKU,stok)");e.target.value=""};r.readAsText(f)};
+render();
+if(new URLSearchParams(location.search).get("new"))add();
+</script>
+</body>
+</html>
